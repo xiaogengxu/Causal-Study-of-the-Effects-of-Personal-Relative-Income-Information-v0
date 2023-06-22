@@ -1,21 +1,873 @@
-{% extends "global/Page.html" %}
-{% load otree static %}
-
-{% block title %}
-    Part 7 Political preferences
-{% endblock %}
+{% extends "political_pref/Page.html" %}
+{% load otree static i18n %}
 
 {% block content %}
 
-    <p>Migration & trade [1995 National Identity Module of the International Social Survey Programme (ISSP),
-        which covers advanced, middle-income, and developing economies:]</p>
+    <head>
+        <link href="{% static 'nouislider.min.css' %}" rel="stylesheet">
+        <script src="{% static 'wNumb.min.js' %}"></script>
+        <script src="{% static 'nouislider.min.js' %}"></script>
+    </head>
 
-    <p>{% formfield player.migration %}</p>
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
 
-    <p>{% formfield player.trade %}</p>
+    <p><b>{% blocktrans %}In this section, we ask about your views on various societal and political issues.{% endblocktrans %}</b></p>
+    <br>
 
+    <div id="shuffle1">
+    </div>
+
+    <div id="shuffle1_1"></div>
+
+    <div id="shuffle1_1_txt">
+        <p>{% blocktrans %}There are different opinions about immigrants from other countries living in Finland.
+            By "immigrants", we mean people who come to settle in Finland.
+            Do you think the number of immigrants to Finland nowadays should be increased or decreased.
+            Please answer separately for each of the two following groups:{% endblocktrans %}</p>
+        <br>
+    </div>
+
+    <div id="shuffle2_1">
+        <div style="text-indent: 2em">
+            <p>{% blocktrans %}Humanitarian immigration should be:{% endblocktrans %}</p>
+        </div>
+        <p style="border:3px; border-style:solid; border-color: darkgrey; padding: 0.2em; border-radius: 3px;
+            margin-left: 2em; margin-right: 2em">
+        {% blocktrans %}By humanitarian immigration we mean people have been persecuted or fear
+            they will be persecuted on account of race, religion, nationality,
+            and/or membership in a particular social group or political opinion.{% endblocktrans %}
+        </p>
+        <div type="range" class="noUiSlider" id="slider_migration_human"></div>
+        <input type="hidden" name="migration_human" value="" id="myRange1_1"/>
+        <input type="hidden" name="check_migration1" value="" id="id_check_migration1"/>
+        <br><br><br><br><br><br>
+    </div>
+
+    <div id="shuffle2_2">
+        <div style="text-indent: 2em">
+            <p>{% blocktrans %}Work-based immigration should be:{% endblocktrans %}</p>
+        </div>
+        <p style="border:3px; border-style:solid; border-color: darkgrey; padding: 0.2em; border-radius: 3px;
+            margin-left: 2em; margin-right: 2em">
+        {% blocktrans %}By employment-based immigration we mean skilled workers, professionals,
+            and other workers who immigrate to enter into an employment contract with an employer in Finland.{% endblocktrans %}
+        </p>
+        <div type="range" class="noUiSlider" id="slider_migration_work"></div>
+        <input type="hidden" name="migration_work" value="" id="myRange1_2"/>
+        <input type="hidden" name="check_migration2" value="" id="id_check_migration2"/>
+        <br><br><br><br><br><br>
+    </div>
+
+    <div id="shuffle1_2">
+        <p>{% blocktrans %}In your opinion, what should be done about foreign imports to promote jobs in Finland?{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_trade"></div>
+        <input type="hidden" name="trade" value="" id="myRange2"/>
+        <input type="hidden" name="check_trade" value="" id="id_check_trade"/>
+        <br><br><br><br><br><br>
+    </div>
+
+    <script>
+        // Show the slider questions with the randomized order
+        var show_sequence_list1 = [{{ migration_trade_seq0|json }}, {{ migration_trade_seq1|json }}];
+        var show_sequence_list2 = [{{ migration_seq0|json }}, {{ migration_seq1|json }}];
+
+        var parent1 = document.getElementById("shuffle1");
+        var parent2 = document.getElementById("shuffle1_1");
+
+        var i;
+        var j;
+
+        for (i = 0; i < show_sequence_list1.length; i++ ) {
+            if (show_sequence_list1[i] === "migration") {
+                parent1.appendChild(document.getElementById("shuffle1_1"));
+            }
+            if (show_sequence_list1[i] === "trade") {
+                parent1.appendChild(document.getElementById("shuffle1_2"));
+            }
+        }
+
+        for (j = 0; j < show_sequence_list2.length; j++ ) {
+            if (j === 0) {
+                parent2.appendChild(document.getElementById("shuffle1_1_txt"));
+            }
+            if (show_sequence_list2[j] === "migration_human") {
+                parent2.appendChild(document.getElementById("shuffle2_1"));
+            }
+            if (show_sequence_list2[j] === "migration_work") {
+                parent2.appendChild(document.getElementById("shuffle2_2"));
+            }
+        }
+    </script>
+
+    <div class="noUiSlider">
+    <script>
+
+    var slider_migration_human = document.getElementById('slider_migration_human');
+    var slider_migration_work = document.getElementById('slider_migration_work');
+    var slider_trade = document.getElementById('slider_trade');
+
+    var migration_human_output = document.getElementById('myRange1_1');
+    var migration_work_output = document.getElementById('myRange1_2');
+    var trade_output = document.getElementById('myRange2');
+
+    var check_migration1_output = document.getElementById('id_check_migration1');
+    var check_migration2_output = document.getElementById('id_check_migration2');
+    var check_trade_output = document.getElementById('id_check_trade');
+
+    /* Space looks stupid because IE doesn't allow Array() */
+    var pipFormats1;
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats1 = {'0':
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'vähentää'+'<br>'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp'
+       +'merkittävästi',
+       '100': 'kasvattaa'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'merkittävästi'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats1 = {'0':
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'sänkas'+'<br>'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp'
+       +'betydligt',
+       '100': 'höjas'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'betydligt'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+
+    var pipFormats2;
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats2 = {'0':
+               '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+               '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+               +'Maahantuontia'+'<br>'
+               +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+               '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'pitäisi vaikeuttaa', '100': 'Maahantuontia'
+               +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'<br>'+'pitäisi helpottaa'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats2 = {'0':
+               '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+               '&nbsp&nbsp&nbsp&nbsp&nbsp'
+               +'Importen borde'+'<br>'
+               +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+               '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'göras svårare', '100': 'Importen borde'
+               +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+                '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'<br>'+'göras lättare'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+                '&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+
+    // Initializing the sliders
+    noUiSlider.create(slider_migration_human, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats1[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_migration_work, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats1[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_trade, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats2[a];
+            }
+        }
+    }
+    });
+
+    // Update the input formfield values with the slider values
+    slider_migration_human.noUiSlider.on('update', function (values, handle) {
+        migration_human_output.value = values[handle];
+    });
+
+    slider_migration_work.noUiSlider.on('update', function (values, handle) {
+        migration_work_output.value = values[handle];
+    });
+
+    slider_trade.noUiSlider.on('update', function (values, handle) {
+        trade_output.value = values[handle];
+    });
+    </script>
+    </div>
+
+    <style>
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+        .noUi-slide {
+            width: 100%; /* Width of the outside container */
+        }
+
+        /* The value of handle shows only when touching the handle. */
+        .noUi-tooltip {
+            display: none;
+        }
+        .noUi-active .noUi-tooltip {
+            display: block;
+        }
+        .noUi-handle {
+            display: none;
+        }
+        .noUi-pips {
+            margin-top: -5px;
+        }
+        .noUi-marker {
+            margin-top: -4px;
+        }
+        .noUi-value {
+            margin-top: -13px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var handle_style1_1 = document.getElementById("slider_migration_human").querySelector('.noUi-handle');
+            var handle_style1_2 = document.getElementById("slider_migration_work").querySelector('.noUi-handle');
+            var handle_style2 = document.getElementById("slider_trade").querySelector('.noUi-handle');
+
+            slider_migration_human.noUiSlider.on('slide', function () {
+                handle_style1_1.style.display = 'block';
+                handle_style1_1.style.background = '#007bff';
+                check_migration1_output.value = 1;
+            });
+
+            slider_migration_work.noUiSlider.on('slide', function () {
+                handle_style1_2.style.display = 'block';
+                handle_style1_2.style.background = '#007bff';
+                check_migration2_output.value = 1;
+            })
+
+            slider_trade.noUiSlider.on('slide', function () {
+                handle_style2.style.display = 'block';
+                handle_style2.style.background = '#007bff';
+                check_trade_output.value = 1;
+            });
+        });
+    </script>
 
     <br>
     {% next_button %}
+
+    <br><br>
+    {% if app1 == 'political_pref' %}
+        {% if condition == 'control' %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="25"
+                    aria-valuemin="0" aria-valuemax="100" style="width:25%">
+                    <span class="sr-only">25% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="28"
+                    aria-valuemin="0" aria-valuemax="100" style="width:28%">
+                    <span class="sr-only">28% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="32"
+                    aria-valuemin="0" aria-valuemax="100" style="width:32%">
+                    <span class="sr-only">32% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="37"
+                    aria-valuemin="0" aria-valuemax="100" style="width:37%">
+                    <span class="sr-only">37% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="42"
+                    aria-valuemin="0" aria-valuemax="100" style="width:42%">
+                    <span class="sr-only">42% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="47"
+                    aria-valuemin="0" aria-valuemax="100" style="width:47%">
+                    <span class="sr-only">47% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% elif condition == 'assigned'%}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="26"
+                    aria-valuemin="0" aria-valuemax="100" style="width:26%">
+                    <span class="sr-only">26% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="29"
+                    aria-valuemin="0" aria-valuemax="100" style="width:29%">
+                    <span class="sr-only">29% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="34"
+                    aria-valuemin="0" aria-valuemax="100" style="width:34%">
+                    <span class="sr-only">34% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="38"
+                    aria-valuemin="0" aria-valuemax="100" style="width:38%">
+                    <span class="sr-only">38% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="43"
+                    aria-valuemin="0" aria-valuemax="100" style="width:43%">
+                    <span class="sr-only">43% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="48"
+                    aria-valuemin="0" aria-valuemax="100" style="width:48%">
+                    <span class="sr-only">48% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="28"
+                    aria-valuemin="0" aria-valuemax="100" style="width:28%">
+                    <span class="sr-only">28% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="32"
+                    aria-valuemin="0" aria-valuemax="100" style="width:32%">
+                    <span class="sr-only">32% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="35"
+                    aria-valuemin="0" aria-valuemax="100" style="width:35%">
+                    <span class="sr-only">35% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="40"
+                    aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                    <span class="sr-only">40% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="45"
+                    aria-valuemin="0" aria-valuemax="100" style="width:45%">
+                    <span class="sr-only">45% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="50"
+                    aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                    <span class="sr-only">50% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% if app3 == 'political_pref' %}
+        {% if condition == 'control' %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="49"
+                    aria-valuemin="0" aria-valuemax="100" style="width:49%">
+                    <span class="sr-only">49% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="53"
+                    aria-valuemin="0" aria-valuemax="100" style="width:53%">
+                    <span class="sr-only">53% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="56"
+                    aria-valuemin="0" aria-valuemax="100" style="width:56%">
+                    <span class="sr-only">56% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="61"
+                    aria-valuemin="0" aria-valuemax="100" style="width:61%">
+                    <span class="sr-only">61% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="67"
+                    aria-valuemin="0" aria-valuemax="100" style="width:67%">
+                    <span class="sr-only">67% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="72"
+                    aria-valuemin="0" aria-valuemax="100" style="width:72%">
+                    <span class="sr-only">72% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% elif condition == 'assigned'%}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="50"
+                    aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                    <span class="sr-only">50% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="53"
+                    aria-valuemin="0" aria-valuemax="100" style="width:53%">
+                    <span class="sr-only">53% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="56"
+                    aria-valuemin="0" aria-valuemax="100" style="width:56%">
+                    <span class="sr-only">56% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="62"
+                    aria-valuemin="0" aria-valuemax="100" style="width:62%">
+                    <span class="sr-only">62% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="67"
+                    aria-valuemin="0" aria-valuemax="100" style="width:67%">
+                    <span class="sr-only">67% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="72"
+                    aria-valuemin="0" aria-valuemax="100" style="width:72%">
+                    <span class="sr-only">72% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="52"
+                    aria-valuemin="0" aria-valuemax="100" style="width:52%">
+                    <span class="sr-only">52% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="55"
+                    aria-valuemin="0" aria-valuemax="100" style="width:55%">
+                    <span class="sr-only">55% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="58"
+                    aria-valuemin="0" aria-valuemax="100" style="width:58%">
+                    <span class="sr-only">58% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="63"
+                    aria-valuemin="0" aria-valuemax="100" style="width:63%">
+                    <span class="sr-only">63% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="68"
+                    aria-valuemin="0" aria-valuemax="100" style="width:68%">
+                    <span class="sr-only">68% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="73"
+                    aria-valuemin="0" aria-valuemax="100" style="width:73%">
+                    <span class="sr-only">73% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% if app1 == 'job_salary' and app2 == 'political_pref' %}
+        {% if condition == 'control' %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="44"
+                    aria-valuemin="0" aria-valuemax="100" style="width:44%">
+                    <span class="sr-only">44% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="47"
+                    aria-valuemin="0" aria-valuemax="100" style="width:47%">
+                    <span class="sr-only">47% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="51"
+                    aria-valuemin="0" aria-valuemax="100" style="width:51%">
+                    <span class="sr-only">51% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="56"
+                    aria-valuemin="0" aria-valuemax="100" style="width:56%">
+                    <span class="sr-only">56% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="61"
+                    aria-valuemin="0" aria-valuemax="100" style="width:61%">
+                    <span class="sr-only">61% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="67"
+                    aria-valuemin="0" aria-valuemax="100" style="width:67%">
+                    <span class="sr-only">67% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% elif condition == 'assigned'%}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="45"
+                    aria-valuemin="0" aria-valuemax="100" style="width:45%">
+                    <span class="sr-only">45% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="48"
+                    aria-valuemin="0" aria-valuemax="100" style="width:48%">
+                    <span class="sr-only">48% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="52"
+                    aria-valuemin="0" aria-valuemax="100" style="width:52%">
+                    <span class="sr-only">52% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="57"
+                    aria-valuemin="0" aria-valuemax="100" style="width:57%">
+                    <span class="sr-only">57% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="62"
+                    aria-valuemin="0" aria-valuemax="100" style="width:62%">
+                    <span class="sr-only">62% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="67"
+                    aria-valuemin="0" aria-valuemax="100" style="width:67%">
+                    <span class="sr-only">67% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="47"
+                    aria-valuemin="0" aria-valuemax="100" style="width:47%">
+                    <span class="sr-only">47% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="50"
+                    aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                    <span class="sr-only">50% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="53"
+                    aria-valuemin="0" aria-valuemax="100" style="width:53%">
+                    <span class="sr-only">53% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="58"
+                    aria-valuemin="0" aria-valuemax="100" style="width:58%">
+                    <span class="sr-only">58% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="63"
+                    aria-valuemin="0" aria-valuemax="100" style="width:63%">
+                    <span class="sr-only">63% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="68"
+                    aria-valuemin="0" aria-valuemax="100" style="width:68%">
+                    <span class="sr-only">68% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% if app1 == 'just_world' and app2 == 'political_pref' %}
+        {% if condition == 'control' %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="30"
+                    aria-valuemin="0" aria-valuemax="100" style="width:30%">
+                    <span class="sr-only">30% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="33"
+                    aria-valuemin="0" aria-valuemax="100" style="width:33%">
+                    <span class="sr-only">33% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="37"
+                    aria-valuemin="0" aria-valuemax="100" style="width:37%">
+                    <span class="sr-only">37% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="42"
+                    aria-valuemin="0" aria-valuemax="100" style="width:42%">
+                    <span class="sr-only">42% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="47"
+                    aria-valuemin="0" aria-valuemax="100" style="width:47%">
+                    <span class="sr-only">47% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="53"
+                    aria-valuemin="0" aria-valuemax="100" style="width:53%">
+                    <span class="sr-only">53% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% elif condition == 'assigned'%}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="31"
+                    aria-valuemin="0" aria-valuemax="100" style="width:31%">
+                    <span class="sr-only">31% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="34"
+                    aria-valuemin="0" aria-valuemax="100" style="width:34%">
+                    <span class="sr-only">34% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="38"
+                    aria-valuemin="0" aria-valuemax="100" style="width:38%">
+                    <span class="sr-only">38% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="43"
+                    aria-valuemin="0" aria-valuemax="100" style="width:43%">
+                    <span class="sr-only">43% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="48"
+                    aria-valuemin="0" aria-valuemax="100" style="width:48%">
+                    <span class="sr-only">48% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="53"
+                    aria-valuemin="0" aria-valuemax="100" style="width:53%">
+                    <span class="sr-only">53% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            {% if ind_Migration_trade == 0 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="33"
+                    aria-valuemin="0" aria-valuemax="100" style="width:33%">
+                    <span class="sr-only">33% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 1 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="37"
+                    aria-valuemin="0" aria-valuemax="100" style="width:37%">
+                    <span class="sr-only">37% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 2 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="40"
+                    aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                    <span class="sr-only">40% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 3 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="45"
+                    aria-valuemin="0" aria-valuemax="100" style="width:45%">
+                    <span class="sr-only">45% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 4 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="50"
+                    aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                    <span class="sr-only">50% Complete</span>
+                </div>
+                </div>
+            {% elif ind_Migration_trade == 5 %}
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="55"
+                    aria-valuemin="0" aria-valuemax="100" style="width:55%">
+                    <span class="sr-only">55% Complete</span>
+                </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
 
 {% endblock %}

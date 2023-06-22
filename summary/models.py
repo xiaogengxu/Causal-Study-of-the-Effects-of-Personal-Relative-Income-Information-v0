@@ -8,7 +8,9 @@ from otree.api import (
     Currency as c,
     currency_range,
 )
+from django.utils.translation import ugettext_lazy as _
 
+import csv
 
 author = 'Your name here'
 
@@ -19,7 +21,7 @@ Summary & Thank you
 
 class Constants(BaseConstants):
     name_in_url = 'summary'
-    players_per_group = 3
+    players_per_group = 200
     num_rounds = 1
 
 
@@ -32,4 +34,5 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    pass
+    lang = models.StringField(choices=[('en', 'English'), ('fi', 'suomi'), ('sv', 'svenska')],
+                              widget=widgets.RadioSelectHorizontal)

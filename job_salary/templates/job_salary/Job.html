@@ -1,21 +1,341 @@
-{% extends "global/Page.html" %}
-{% load otree static %}
-
-{% block title %}
-
-{% endblock %}
+{% extends "job_salary/Page.html" %}
+{% load otree static i18n %}
 
 {% block content %}
-    <p>The next questions concern your job or, if you have more than one employer,
-        your <b>primary</b> job.</p>
-    <p><br>{% formfield player.how_long %}</p>
-    <p><br>{% formfield player.wage_satisfied %}</p>
-    <p><br>{% formfield player.job_satisfied %}</p>
-    <p><br>{% formfield player.fair_wage %}</p>
-    <p><br>{% formfield player.leave_job %}</p>
-    <p><br>{% formfield player.search_job %}</p>
+
+    <head>
+    <link href="{% static 'nouislider.min.css' %}" rel="stylesheet">
+    <script src="{% static 'nouislider.min.js' %}"></script>
+    <script src="{% static 'wNumb.min.js' %}"></script>
+    </head>
+
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
+
+    <p><b>{% blocktrans %}The next questions concern your job or your primary occupation.{% endblocktrans %}</b></p>
+    <br>
+
+    <p>{% blocktrans %}How satisfied are you with how much you earn on your current job?
+        Please tap the bar to mark your answer.{% endblocktrans %}</p>
+
+    <div type="range" class="noUiSlider" id="slider_wage_satisfied"></div>
+    <input type="hidden" name="wage_satisfied" value="" id="myRange9a"/>
+    <input type="hidden" name="check_slider9a" value="" id="id_check_slider9a"/>
+    <br><br><br><br><br>
+
+    <p>{% blocktrans %}How satisfied are you with your job in general? Please tap the bar to mark your answer.{% endblocktrans %}</p>
+
+    <div type="range" class="noUiSlider" id="slider_job_satisfied"></div>
+    <input type="hidden" name="job_satisfied" value="" id="myRange9b"/>
+    <input type="hidden" name="check_slider9b" value="" id="id_check_slider9b"/>
+    <br><br><br><br><br>
+
+    <p>{% blocktrans %}Does your work feel meaningful to you? Please tap the bar to mark your answer.{% endblocktrans %}</p>
+
+    <div type="range" class="noUiSlider" id="slider_meaningful"></div>
+    <input type="hidden" name="meaningful" value="" id="myRange9c"/>
+    <input type="hidden" name="check_slider9c" value="" id="id_check_slider9c"/>
+    <br><br><br><br><br>
+
+    <div class="noUiSlider">
+    <script>
+
+    var slider_wage_satisfied = document.getElementById('slider_wage_satisfied');
+    var slider_job_satisfied = document.getElementById('slider_job_satisfied');
+    var slider_meaningful = document.getElementById('slider_meaningful');
+
+    var wage_satisfied_output = document.getElementById('myRange9a');
+    var job_satisfied_output = document.getElementById('myRange9b');
+    var meaningful_output = document.getElementById('myRange9c');
+
+    var check_slider9a_output = document.getElementById('id_check_slider9a');
+    var check_slider9b_output = document.getElementById('id_check_slider9b');
+    var check_slider9c_output = document.getElementById('id_check_slider9c');
+
+    /* Space looks stupid because IE doesn't allow Array() */
+    var pipFormats;
+    var pipFormats1;
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'En lainkaan'+'<br>'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'tyytyväinen', '100': 'Erittäin'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'tyytyväinen'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+            +'Inte alls'+'<br>'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+            +'nöjd', '100': 'Mycket'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+            +'<br>'+'nöjd'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+        };
+    }
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats1 = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'Ei lainkaan'+'<br>'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'merkityksellistä', '100': 'Erittäin'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'merkityksellistä'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats1 = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+            +'Inget betydelse'+'<br>'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+            +'alls', '100': 'Mycker'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+            +'<br>'+'betydelse'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+        };
+    }
+
+    // Initializing the sliders
+    noUiSlider.create(slider_wage_satisfied, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    {#tooltips: wNumb({decimals: 0}),#}
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_job_satisfied, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    {#tooltips: wNumb({decimals: 0}),#}
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_meaningful, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    {#tooltips: wNumb({decimals: 0}),#}
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats1[a];
+            }
+        }
+    }
+    });
+
+    // Update the input formfield values with the slider values
+    slider_wage_satisfied.noUiSlider.on('update', function (values, handle) {
+        wage_satisfied_output.value = values[handle];
+    });
+
+    slider_job_satisfied.noUiSlider.on('update', function (values, handle) {
+        job_satisfied_output.value = values[handle];
+    });
+
+    slider_meaningful.noUiSlider.on('update', function (values, handle) {
+        meaningful_output.value = values[handle];
+    })
+    </script>
+    </div>
+
+    <style>
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+        .noUi-slide {
+            width: 100%; /* Width of the outside container */
+        }
+
+        /* The value of handle shows only when touching the handle. */
+        .noUi-tooltip {
+            display: none;
+        }
+        .noUi-active .noUi-tooltip {
+            display: block;
+        }
+        .noUi-handle {
+            display: none;
+        }
+        .noUi-pips {
+            margin-top: -5px;
+        }
+        .noUi-marker {
+            margin-top: -4px;
+        }
+        .noUi-value {
+            margin-top: -17px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var handle_style1 = document.getElementById("slider_wage_satisfied").querySelector('.noUi-handle');
+            var handle_style2 = document.getElementById("slider_job_satisfied").querySelector('.noUi-handle');
+            var handle_style3 = document.getElementById("slider_meaningful").querySelector('.noUi-handle');
+
+            slider_wage_satisfied.noUiSlider.on('slide', function () {
+                handle_style1.style.display = 'block';
+                handle_style1.style.background = '#007bff';
+                check_slider9a_output.value = 1;
+            });
+
+            slider_job_satisfied.noUiSlider.on('slide', function () {
+                handle_style2.style.display = 'block';
+                handle_style2.style.background = '#007bff';
+                check_slider9b_output.value = 1;
+            });
+
+            slider_meaningful.noUiSlider.on('slide', function () {
+                handle_style3.style.display = 'block';
+                handle_style3.style.background = '#007bff';
+                check_slider9c_output.value = 1;
+            });
+        });
+    </script>
 
     <br>
     {% next_button %}
+
+    <br><br>
+    {% if app1 == 'job_salary' %}
+        {% if condition == 'control' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="40"
+            aria-valuemin="0" aria-valuemax="100" style="width:40%">
+            <span class="sr-only">40% Complete</span>
+            </div>
+        </div>
+        {% elif condition == 'assigned'%}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="41"
+            aria-valuemin="0" aria-valuemax="100" style="width:41%">
+            <span class="sr-only">41% Complete</span>
+        </div>
+        </div>
+        {% else %}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="43"
+            aria-valuemin="0" aria-valuemax="100" style="width:43%">
+            <span class="sr-only">43% Complete</span>
+        </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {% if app3 == 'job_salary' %}
+        {% if condition == 'control' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="72"
+            aria-valuemin="0" aria-valuemax="100" style="width:72%">
+            <span class="sr-only">72% Complete</span>
+            </div>
+        </div>
+        {% elif condition == 'assigned'%}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="72"
+            aria-valuemin="0" aria-valuemax="100" style="width:72%">
+            <span class="sr-only">72% Complete</span>
+        </div>
+        </div>
+        {% else %}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="73"
+            aria-valuemin="0" aria-valuemax="100" style="width:73%">
+            <span class="sr-only">73% Complete</span>
+        </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {% if app1 == 'just_world' and app2 == 'job_salary' %}
+        {% if condition == 'control' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="46"
+            aria-valuemin="0" aria-valuemax="100" style="width:46%">
+            <span class="sr-only">46% Complete</span>
+            </div>
+        </div>
+        {% elif condition == 'assigned'%}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="47"
+            aria-valuemin="0" aria-valuemax="100" style="width:47%">
+            <span class="sr-only">47% Complete</span>
+        </div>
+        </div>
+        {% else %}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="48"
+            aria-valuemin="0" aria-valuemax="100" style="width:48%">
+            <span class="sr-only">48% Complete</span>
+        </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {% if app1 == 'political_pref' and app2 == 'job_salary' %}
+        {% if condition == 'control' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="67"
+            aria-valuemin="0" aria-valuemax="100" style="width:67%">
+            <span class="sr-only">67% Complete</span>
+            </div>
+        </div>
+        {% elif condition == 'assigned'%}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="67"
+            aria-valuemin="0" aria-valuemax="100" style="width:67%">
+            <span class="sr-only">67% Complete</span>
+        </div>
+        </div>
+        {% else %}
+        <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="68"
+            aria-valuemin="0" aria-valuemax="100" style="width:68%">
+            <span class="sr-only">68% Complete</span>
+        </div>
+        </div>
+        {% endif %}
+    {% endif %}
 
 {% endblock %}

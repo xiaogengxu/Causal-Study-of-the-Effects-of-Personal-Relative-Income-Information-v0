@@ -8,6 +8,11 @@ from otree.api import (
     Currency as c,
     currency_range,
 )
+from django.utils.translation import ugettext_lazy as _
+
+import random
+import json
+from django.contrib.admin.utils import flatten
 
 author = 'Your name here'
 
@@ -16,30 +21,79 @@ Political preferences
 """
 
 
-def make_field1(label):
-    return models.StringField(
-        choices=["Hardly ever", "Only some of the time", "Sometimes", "Most of the time", "Just about always"],
-        label=label,
-        widget=widgets.RadioSelectHorizontal,
-    )
-
-
-def make_field2(label):
-    return models.StringField(
-        choices=["Strongly disagree", "Disagree", "Neither disagree nor agree", "Agree", "Strongly agree"],
-        label=label,
-        widget=widgets.RadioSelectHorizontal,
-    )
-
-
 class Constants(BaseConstants):
     name_in_url = 'political_pref'
-    players_per_group = None
+    players_per_group = 200
     num_rounds = 1
+
+    trust_list = ['gov', 'union', 'politician']
+    migration_trade_list = ['migration', 'trade']
+    migration_list = ['migration_human', 'migration_work']
+    redistribution_list = ['min_income', 'income_tax', 'inheritance_tax', 'redistribution', 'tax_burden']
+    labor_market_list = ['unemployment', 'basic_income']
 
 
 class Subsession(BaseSubsession):
-    pass
+    def creating_session(self):
+        for player in self.get_players():
+            trust_seq = Constants.trust_list.copy()
+            migration_trade_seq = Constants.migration_trade_list.copy()
+            migration_seq = Constants.migration_list.copy()
+            redistribution_seq = Constants.redistribution_list.copy()
+            labor_market_seq = Constants.labor_market_list.copy()
+
+            random.shuffle(trust_seq)
+            random.shuffle(migration_trade_seq)
+            random.shuffle(migration_seq)
+            random.shuffle(redistribution_seq)
+            random.shuffle(labor_market_seq)
+
+            player.trust_seq0 = trust_seq[0]
+            player.trust_seq1 = trust_seq[1]
+            player.trust_seq2 = trust_seq[2]
+
+            player.migration_trade_seq0 = migration_trade_seq[0]
+            player.migration_trade_seq1 = migration_trade_seq[1]
+
+            player.migration_seq0 = migration_seq[0]
+            player.migration_seq1 = migration_seq[1]
+
+            player.redistribution_seq0 = redistribution_seq[0]
+            player.redistribution_seq1 = redistribution_seq[1]
+            player.redistribution_seq2 = redistribution_seq[2]
+            player.redistribution_seq3 = redistribution_seq[3]
+            player.redistribution_seq4 = redistribution_seq[4]
+
+            player.labor_market_seq0 = labor_market_seq[0]
+            player.labor_market_seq1 = labor_market_seq[1]
+
+        from .pages import initial_page_sequence
+        ini = [i.__name__ for i in initial_page_sequence]
+        for p in self.get_players():
+            pb = ini.copy()
+            pg_Gini1, pg_Gini2, pg_Redistribution, *tail = pb
+            # Pack the two distribution choice questions together
+            Gini_seq = [pg_Gini1, pg_Gini2]
+            # Randomize the order of two distribution questions
+            random.shuffle(Gini_seq)
+            # Pack the distribution qs and Redistribution q
+            Gini_Redistribution_seq = [Gini_seq, pg_Redistribution]
+            # Randomize the order between two distribution qs and Redistribution
+            random.shuffle(Gini_Redistribution_seq)
+            # Flatten Gini_Redistribution_seq to a simple list
+            Gini_Redistribution_seq1 = flatten(Gini_Redistribution_seq)
+            pb1 = [Gini_Redistribution_seq1, *tail]
+            # Shuffle the pack with other pages
+            random.shuffle(pb1)
+            # Flatten the list to one simple list
+            pb = flatten(pb1)
+            p.page_sequence = json.dumps(pb)
+            p.participant.vars['ind_Gini1'] = pb.index('Gini1')
+            p.participant.vars['ind_Gini2'] = pb.index('Gini2')
+            p.participant.vars['ind_Redistribution'] = pb.index('Redistribution')
+            p.participant.vars['ind_Trust'] = pb.index('Trust')
+            p.participant.vars['ind_Migration_trade'] = pb.index('Migration_trade')
+            p.participant.vars['ind_Labor_market'] = pb.index('Labor_market')
 
 
 class Group(BaseGroup):
@@ -47,88 +101,68 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    migration = models.StringField(
-        label="There are different opinions about immigrants from other countries living in (respondent’s country). "
-              "(By “immigrants” we mean people who come to settle in (respondent’s country). Do you think the number "
-              "of immigrants to (respondent’s country) nowadays should be:",
-        choices=["reduced a lot", "reduced a little", "remain the same as it is", "increased a little",
-                 "increased a lot"],
-        widget=widgets.RadioSelectHorizontal
+    page_sequence = models.StringField()
+
+    distribution1 = models.StringField(blank=True)
+    distribution2 = models.StringField(blank=True)
+
+    min_income = models.IntegerField(
+        blank=True
     )
 
-    trade = models.StringField(
-        label="(Respondent’s country) should limit the import of foreign products in order to protect its national "
-              "economy:",
-        choices=["agree strongly", "agree", "neither agree nor disagree", "disagree", "disagree strongly"],
-        widget=widgets.RadioSelectHorizontal
-    )
+    income_tax = models.IntegerField()
+    check_income_tax = models.IntegerField(blank=True)
 
-    trust_institution1 = make_field1("1. How much of the time do you think you can trust government or public agencies "
-                                     "to do what is right?")
+    inheritance_tax = models.IntegerField()
+    check_inheritance_tax = models.IntegerField(blank=True)
 
-    trust_institution2 = make_field1("2. How much of the time do you think you can trust men and women in political "
-                                     "professions, who either hold or are running for public office?")
+    redistribution = models.IntegerField()
+    check_slider_redistribute = models.IntegerField(blank=True)
 
-    trust_institution3 = make_field1(
-        "3. How much of the time do you think you can trust the police to do what is right")
+    tax_burden = models.IntegerField()
+    check_slider_tax_burden = models.IntegerField(blank=True)
 
-    income_tax1 = models.IntegerField()
+    redistribution_seq0 = models.StringField()
+    redistribution_seq1 = models.StringField()
+    redistribution_seq2 = models.StringField()
+    redistribution_seq3 = models.StringField()
+    redistribution_seq4 = models.StringField()
 
-    income_tax2 = models.IntegerField()
+    trust_government = models.IntegerField()
+    trust_union = models.IntegerField()
+    trust_politician = models.IntegerField()
 
-    income_tax3 = models.IntegerField()
+    check_slider_gov = models.IntegerField(blank=True)
+    check_slider_union = models.IntegerField(blank=True)
+    check_slider_politician = models.IntegerField(blank=True)
 
-    check_tax1 = models.IntegerField(blank=True)
+    trust_seq0 = models.StringField()
+    trust_seq1 = models.StringField()
+    trust_seq2 = models.StringField()
 
-    check_tax2 = models.IntegerField(blank=True)
+    migration_human = models.IntegerField()
+    check_migration1 = models.IntegerField(blank=True)
 
-    check_tax3 = models.IntegerField(blank=True)
+    migration_work = models.IntegerField()
+    check_migration2 = models.IntegerField(blank=True)
 
-    inheritance_tax_h = models.BooleanField(
-        label="4. Currently, spouses and direct heirs face a tax of 19% on each additional dollar of inheritance "
-              "after 1 million euros. Should this inheritance tax rate be increased or decreased?",
-        choices=[[True,"Increased"],[False,"Decreased"]],
-        widget=widgets.RadioSelectHorizontal
-    )
+    trade = models.IntegerField(blank=True)
+    check_trade = models.IntegerField(blank=True)
 
-    inheritance_tax_l = models.BooleanField(
-        label="5. Currently, spouses and direct heirs are not liable for taxes for inheritances smaller than "
-              "20,000 euros. Should this limit be increased or decreased?",
-        choices=[[True,"Increased"],[False,"Decreased"]],
-        widget=widgets.RadioSelectHorizontal
-    )
+    migration_trade_seq0 = models.StringField()
+    migration_trade_seq1 = models.StringField()
 
-    wealth_tax = models.StringField(
-        label="6. Finland abolished its wealth tax in 2006. Would you support its reinstatement?",
-        choices=["Strongly oppose","Oppose","Neither oppose nor support","Support","Strongly support"],
-        widget=widgets.RadioSelectHorizontal
-    )
+    migration_seq0 = models.StringField()
+    migration_seq1 = models.StringField()
 
-    tax_balance = make_field2("7. The national government should adjust spending or taxes to balance its budget from "
-                              "year to year.")
+    unemployment = models.IntegerField()
+    check_unemployment = models.IntegerField(blank=True)
 
-    spend_infrastructure = make_field2("8. The national government should spend more on infrastructure projects, "
-                                 "including clean energy.")
+    basic_income = models.IntegerField()
+    check_basic_income = models.IntegerField(blank=True)
 
-    spend_edu = make_field2("9. The national government should spend more on education.")
+    labor_market_seq0 = models.StringField()
+    labor_market_seq1 = models.StringField()
 
-    spend_social = make_field2("10. The national government should spend more on universal social services, "
-                               "like the national pension plan.")
-
-    spend_welfare = make_field2("11. The national government should spend more on programs that target "
-                                "the poorest Finns, like welfare services.")
-
-    spend_inc_diff = make_field2("12. The national government should spend more on programs that reduce regional "
-                                 "income differences. [FNES]")
-
-    activation_policy = models.StringField(
-        label="1. “Activation policies” help ensure that Finns without jobs continue to look for them.",
-        choices=["Strongly disagree","Disagree","Neither agree nor disagree","Agree","Strongly agree"],
-        widget=widgets.RadioSelectHorizontal
-    )
-
-    universal_income = models.StringField(
-        label="2. A “universal basic income” would reduce the incentive to work too much.",
-        choices=["Strongly disagree", "Disagree", "Neither agree nor disagree", "Agree", "Strongly agree"],
-        widget=widgets.RadioSelectHorizontal
-    )
+    lang = models.StringField(choices=[('en', 'English'), ('fi', 'suomi'), ('sv', 'svenska')],
+                              widget=widgets.RadioSelectHorizontal)

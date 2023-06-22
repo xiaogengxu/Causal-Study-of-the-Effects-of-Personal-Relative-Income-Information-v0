@@ -1,22 +1,118 @@
-{% extends "global/Page.html" %}
-{% load otree static %}
-
-{% block title %}
-    Part 1 Preferred information
-{% endblock %}
+{% extends "preferred_info/Page.html" %}
+{% load otree static i18n %}
 
 {% block content %}
-    <p>Which of the following would you like to learn about?</p>
-    {% formfields player.preferred_group %}
 
-    <br>
-    <p>Notice:</p>
-    <p>for the sake of reliable scientific inference,</p>
-    <p>you will receive the information that you chose above about one quarter of the time</p>
-    <p>about three quarters of the time, the information revealed to you will be randomly drawn out of the four
-        alternatives above [q to the research team: according to which probabilities? Balanced?</p>
+<head>
+    <style>
+    /* Popup container - can be anything you want */
+    .popup {
+        width: 30px;
+        padding-left: 8px;
+        background: lightskyblue;
+        display: inline-block;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
 
-    <br>
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        width: 400px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -240px;
+        margin-bottom: -160px;
+    }
+
+    /* Popup arrow */
+    .popup .popuptext::after {
+        content: "";
+        position: absolute;
+        alignment: center;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+    }
+
+    /* Toggle this class - hide and show the popup */
+    .popup .show {
+      visibility: visible;
+      -webkit-animation: fadeIn 1s;
+      animation: fadeIn 1s;
+    }
+
+    /* Add animation (fade in the popup) */
+    @-webkit-keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity:1 ;}
+    }
+    </style>
+</head>
+
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
+
+    <p>{% blocktrans %}Which of the following would you most like to know about?
+        You will receive this information later in the survey. (All pieces of information are drawn from the 2018.){% endblocktrans %}
+    </p>
+    <p style="border:3px; border-style:solid; border-color: darkgrey; padding: 0.2em; border-radius: 3px">
+    {% blocktrans %}By income, we refer to the individual total annual disposable income,
+        which contains income from labor and capital, as well as all transfers and subsidies
+        like public unemployment payments and pensions (i.e. disposable income).{% endblocktrans %}
+    </p>
+    {% formfield player.preferred_group %}
+
+    <script>
+    // When the user clicks on div, open the popup
+    function myFunction() {
+      var popup = document.getElementById("myPopup");
+      popup.classList.toggle("show");
+    }
+    </script>
+
+    <style>
+        .popup {
+          border: 2px solid gray;
+            border-radius: 3px;
+            display: inline-grid;
+            position: relative;
+        }
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+    </style>
+
+    <br><br>
     {% next_button %}
+
+    <br><br>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="22"
+            aria-valuemin="0" aria-valuemax="100" style="width:22%">
+            <span class="sr-only">22% Complete</span>
+        </div>
+    </div>
 
 {% endblock %}

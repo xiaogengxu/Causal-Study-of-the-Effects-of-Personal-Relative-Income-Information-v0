@@ -1,0 +1,384 @@
+{% extends "social_pref/Page.html" %}
+{% load otree static i18n %}
+
+{% block content %}
+
+    <head>
+        <link href="{% static 'nouislider.min.css' %}" rel="stylesheet">
+        <script src="{% static 'wNumb.min.js' %}"></script>
+        <script src="{% static 'nouislider.min.js' %}"></script>
+    </head>
+
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
+
+    <p><b>{% blocktrans %}In this section, we ask how you would describe yourself.
+        Please use the sliders to tell us how well the following statements describe you as a person.{% endblocktrans %}</b></p>
+    <br>
+
+    <div id="shuffle1"></div>
+
+    <div id="shuffle1_1">
+
+        <p>{% blocktrans %}"When someone does me a favor I am willing to return it."{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_positive_reciprocity"></div>
+        <input type="hidden" name="positive_reciprocity" value="" id="myRange1"/>
+        <input type="hidden" name="check_slider1" value="" id="id_check_slider1"/>
+        <br><br><br><br><br>
+    </div>
+
+    <div id="shuffle1_2">
+
+    <p>{% blocktrans %}"If I am treated very unjustly, I will take revenge at the first occasion,
+            even if there is a cost to do so."{% endblocktrans %}</p>
+
+    <div type="range" class="noUiSlider" id="slider_negative_reciprocity"></div>
+    <input type="hidden" name="negative_reciprocity" value="" id="myRange2"/>
+    <input type="hidden" name="check_slider2" value="" id="id_check_slider2"/>
+    <br><br><br><br><br>
+    </div>
+
+    <div id="shuffle1_3">
+
+        <p>{% blocktrans %}"I assume that people have only the best intentions."{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_trust"></div>
+        <input type="hidden" name="trust" value="" id="myRange3"/>
+        <input type="hidden" name="check_slider3" value="" id="id_check_slider3"/>
+        <br><br><br><br><br>
+    </div>
+
+    <div id="shuffle1_4">
+
+        <p>{% blocktrans %}"I enjoy working in situations involving competition with others."{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_competitiveness1"></div>
+        <input type="hidden" name="competitiveness1" value="" id="myRange4"/>
+        <input type="hidden" name="check_slider4" value="" id="id_check_slider4"/>
+        <br><br><br><br><br>
+    </div>
+
+    <div id="shuffle1_5">
+
+        <p>{% blocktrans %}"It is important to me to perform better than others on a task."{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_competitiveness2"></div>
+        <input type="hidden" name="competitiveness2" value="" id="myRange5"/>
+        <input type="hidden" name="check_slider5" value="" id="id_check_slider5"/>
+        <br><br><br><br><br>
+    </div>
+
+    <script>
+        // Show the slider questions with the randomized order
+        var show_sequence_list = [{{ social_seq0|json }}, {{ social_seq1|json }}, {{ social_seq2|json }},
+            {{ social_seq3|json }}, {{ social_seq4|json }}];
+        var parent = document.getElementById("shuffle1");
+        var i;
+        for (i = 0; i < show_sequence_list.length; i++ ) {
+            if (show_sequence_list[i] === "posi_reci") {
+                parent.appendChild(document.getElementById("shuffle1_1"));
+            }
+            if (show_sequence_list[i] === "neg_reci") {
+                parent.appendChild(document.getElementById("shuffle1_2"));
+            }
+            if (show_sequence_list[i] === "trust_seq") {
+                parent.appendChild(document.getElementById("shuffle1_3"));
+            }
+            if (show_sequence_list[i] === "compete1") {
+                parent.appendChild(document.getElementById("shuffle1_4"));
+            }
+            if (show_sequence_list[i] === "compete2") {
+                parent.appendChild(document.getElementById("shuffle1_5"));
+            }
+        }
+    </script>
+
+    <div class="noUiSlider">
+    <script>
+
+    var slider_positive_reciprocity = document.getElementById('slider_positive_reciprocity');
+    var slider_negative_reciprocity = document.getElementById('slider_negative_reciprocity');
+    var slider_trust = document.getElementById('slider_trust');
+    var slider_competitiveness1 = document.getElementById('slider_competitiveness1');
+    var slider_competitiveness2 = document.getElementById('slider_competitiveness2');
+
+    var positive_reciprocity_output = document.getElementById('myRange1');
+    var negative_reciprocity_output = document.getElementById('myRange2');
+    var trust_output = document.getElementById('myRange3');
+    var competitiveness1_output = document.getElementById('myRange4');
+    var competitiveness2_output = document.getElementById('myRange5');
+
+    var check_slider1_output = document.getElementById('id_check_slider1');
+    var check_slider2_output = document.getElementById('id_check_slider2');
+    var check_slider3_output = document.getElementById('id_check_slider3');
+    var check_slider4_output = document.getElementById('id_check_slider4');
+    var check_slider5_output = document.getElementById('id_check_slider5');
+
+    /* Space looks stupid because IE doesn't allow Array() */
+    var pipFormats;
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats = {'0':
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp&nbsp'
+           +'Ei kuvaa'+'<br>'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'minua lainkaan', '100': 'Kuvaa minua'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'täydellisesti'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats = {'0':
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp&nbsp'
+           +'Beskriver inte'+'<br>'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp&nbsp&nbsp&nbsp'
+       +'alls mig', '100': 'Beskriver mig'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'perfekt'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+
+    // Initializing the sliders
+    noUiSlider.create(slider_positive_reciprocity, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_negative_reciprocity, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_trust, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_competitiveness1, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_competitiveness2, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    // Update the input formfield values with the slider values
+    slider_positive_reciprocity.noUiSlider.on('update', function (values, handle) {
+        positive_reciprocity_output.value = values[handle];
+    });
+
+    slider_negative_reciprocity.noUiSlider.on('update', function (values, handle) {
+        negative_reciprocity_output.value = values[handle];
+    });
+
+    slider_trust.noUiSlider.on('update', function (values, handle) {
+        trust_output.value = values[handle];
+    });
+
+    slider_competitiveness1.noUiSlider.on('update', function (values, handle) {
+        competitiveness1_output.value = values[handle];
+    });
+
+    slider_competitiveness2.noUiSlider.on('update', function (values, handle) {
+        competitiveness2_output.value = values[handle];
+    });
+    </script>
+    </div>
+
+    <style>
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+        .noUi-slide {
+            width: 100%; /* Width of the outside container */
+        }
+
+        /* The value of handle shows only when touching the handle. */
+        .noUi-tooltip {
+            display: none;
+        }
+        .noUi-active .noUi-tooltip {
+            display: block;
+        }
+        .noUi-handle {
+            display: none;
+        }
+        .noUi-pips {
+            margin-top: -5px;
+        }
+        .noUi-marker {
+            margin-top: -4px;
+        }
+        .noUi-value {
+            margin-top: -20px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var handle_style1 = document.getElementById("slider_positive_reciprocity").querySelector('.noUi-handle');
+            var handle_style2 = document.getElementById("slider_negative_reciprocity").querySelector('.noUi-handle');
+            var handle_style3 = document.getElementById("slider_trust").querySelector('.noUi-handle');
+            var handle_style4 = document.getElementById("slider_competitiveness1").querySelector('.noUi-handle');
+            var handle_style5 = document.getElementById("slider_competitiveness2").querySelector('.noUi-handle');
+
+            slider_positive_reciprocity.noUiSlider.on('slide', function () {
+                handle_style1.style.display = 'block';
+                handle_style1.style.background = '#007bff';
+                check_slider1_output.value = 1;
+            });
+
+            slider_negative_reciprocity.noUiSlider.on('slide', function () {
+                handle_style2.style.display = 'block';
+                handle_style2.style.background = '#007bff';
+                check_slider2_output.value = 1;
+            });
+
+            slider_trust.noUiSlider.on('slide', function () {
+                handle_style3.style.display = 'block';
+                handle_style3.style.background = '#007bff';
+                check_slider3_output.value = 1;
+            });
+
+            slider_competitiveness1.noUiSlider.on('slide', function () {
+                handle_style4.style.display = 'block';
+                handle_style4.style.background = '#007bff';
+                check_slider4_output.value = 1;
+            });
+
+            slider_competitiveness2.noUiSlider.on('slide', function () {
+                handle_style5.style.display = 'block';
+                handle_style5.style.background = '#007bff';
+                check_slider5_output.value = 1;
+            });
+        });
+    </script>
+
+    <br>
+    {% next_button %}
+
+    <br><br>
+    {% if condition == 'control' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="81"
+            aria-valuemin="0" aria-valuemax="100" style="width:81%">
+            <span class="sr-only">81% Complete</span>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if condition == 'assigned' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="81"
+            aria-valuemin="0" aria-valuemax="100" style="width:81%">
+            <span class="sr-only">81% Complete</span>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if condition == 'choice' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="82"
+            aria-valuemin="0" aria-valuemax="100" style="width:82%">
+            <span class="sr-only">82% Complete</span>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

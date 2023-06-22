@@ -1,40 +1,282 @@
-{% extends "global/Page.html" %}
-{% load otree static %}
-
-{% block title %}
-    Part 9 Incentivized tasks
-{% endblock %}
+{% extends "incentivized_tasks/Page.html" %}
+{% load otree static i18n %}
 
 {% block content %}
 
-    <p>You will receive a 15-euro reward for taking part in this study.</p>
-    <p>[Remark: 20 euros can be paid without any duty from the “employer” side to report to the tax authorities.
-        5 euros have been already spent on incentivizing the expectations. Thus 15 left.]</p>
+    <head>
+        <link href="{% static 'nouislider.min.css' %}" rel="stylesheet">
+        <script src="{% static 'wNumb.min.js' %}"></script>
+        <script src="{% static 'nouislider.min.js' %}"></script>
+    </head>
 
-    <br>
-    <p>You have now a chance of donating at most 7 euros of your reward to Save the Children, a charitable
-        organization helping poor children in Finland financially to ensure they have funds for school books and basic
-        hobbies <a href="https://www.pelastakaalapset.fi/ajankohtaista/lahjaksi-tulevaisuus/" target="_blank">
-            https://www.pelastakaalapset.fi/ajankohtaista/lahjaksi-tulevaisuus/</a></p>
-    <p>{% formfield player.donate %}</p>
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
 
-    <br>
+    <p id="bonus_txt1">{% blocktrans %}Once you have marked the amounts that you would like to spend on Lotto, Tax and Charity and clicked NEXT,
+        you will move to a new page where one of the decisions will be randomly selected
+        and the sum you indicated will be spent accordingly on that cause.
+        You will get to keep the rest of the 15 euros that you decided not to spend on that particular randomly chosen cause.
+        In case Veikkaus Lotto is randomly selected, we will send you the lottery tickets by mail.{% endblocktrans %}</p>
 
-    <p>You have now a chance of buying Lotto-rows in the weekly National Veikkaus Lotto with at most 7 euros of
-        your reward.</p>
-    <p>{% formfield player.lotto %}</p>
+    <p id="bonus_txt5"><b>{% blocktrans %}These decisions are hypothetical and will not be implemented for real.{% endblocktrans %}</b></p>
 
-    <br>
-    <p>The questionnaire data, including the rewards, charitable donations and lottery data collected on this page,
-        will be sent to Statistics Finland. The officials (who are specialized experts at collecting and storing data
-        on Finnish individuals, families, firms and organizations) will extract the rewards, donations, and lottery
-        data only from the questionnaire data. They will then connect those pieces of data with your contact data
-        (using the code in the top right corner of your questionnaire the key of which is only available to the SF
-        officials) and send them to an external professional agent (Enkätsfabriken AB, not related to the research
-        team and unaware any details of the study). No other information or data will be revealed to the external agent.
-        The external agent then contacts you and sends you the money, lottery tickets and receipts for donations.</p>
+    <br><br>
 
-    <br>
-    {% next_button %}
+    <div id="shuffle"></div>
+        <div id="shuffle_1">
+            <p>{% blocktrans %}Please indicate the amount (0, 5, 10 or 15 euros)
+                that you would like to <i>donate</i> to Save the Children,
+                and how much you would like to keep yourself<span id="bonus_txt2"> if the donation decision is selected on the next page</span>.{% endblocktrans %}</p>
+                <br>
+                <div type="range" class="noUiSlider" id="slider_donate"></div>
+                <div style="text-align: center">
+                    {% blocktrans %}<b><span id="demo_donate"></span></b> euros to Charity and <b><span id="demo_not_donate"></span></b> euros as payment{% endblocktrans %}
+                </div>
+                <input type="hidden" name="donate" value="" id="myRange1"/>
+                <input type="hidden" name="check_slider_donate" value="" id="id_check_slider_donate"/>
+                <br><br><br><br>
+        </div>
+
+        <div id="shuffle_2">
+            <p>{% blocktrans %}Please, indicate the amount (0, 5, 10 or 15 euros)
+                that you would like use to buy Veikkaus <i>Lotto</i> lottery tickets
+                <span id="bonus_txt3"> if the Lotto decision is selected on the next page</span>.{% endblocktrans %}</p>
+                <br>
+                <div type="range" class="noUiSlider" id="slider_lotto"></div>
+                <div style="text-align: center">
+                    {% blocktrans %}<b><span id="demo_lotto"></span></b> euros as lotto and <b><span id="demo_not_lotto"></span></b> euros as payment{% endblocktrans %}
+                </div>
+                <input type="hidden" name="lotto" value="" id="myRange2"/>
+                <input type="hidden" name="check_slider_lotto" value="" id="id_check_slider_lotto"/>
+                <br><br><br><br>
+        </div>
+
+        <div id="shuffle_3">
+            <p>{% blocktrans %}Please, indicate the amount (0, 5, 10 or 15 euros)
+                that you would like to pay as a <i>voluntary tax</i> to the Finnish state,
+                and how much you would like to keep yourself
+                <span id="bonus_txt4">, if the voluntary tax decision is selected on the next page</span>.{% endblocktrans %}</p>
+                <br>
+                <div type="range" class="noUiSlider" id="slider_tax"></div>
+                <div style="text-align: center">
+                    {% blocktrans %}<b><span id="demo_tax"></span></b> euros as tax and <b><span id="demo_not_tax"></span></b> euros as payment{% endblocktrans %}
+                </div>
+                <input type="hidden" name="tax" value="" id="myRange3"/>
+                <input type="hidden" name="check_slider_tax" value="" id="id_check_slider_tax"/>
+                <br><br><br><br>
+        </div>
+
+    <script>
+        // Show the slider questions with the randomized order
+        var show_sequence_list = [{{ incentive_seq0|json }}, {{ incentive_seq1|json }}, {{ incentive_seq2|json }}];
+        var parent = document.getElementById("shuffle");
+        var i;
+        for (i = 0; i < show_sequence_list.length; i++ ) {
+            if (show_sequence_list[i] === "donate") {
+                parent.appendChild(document.getElementById("shuffle_1"));
+            }
+            if (show_sequence_list[i] === "lotto") {
+                parent.appendChild(document.getElementById("shuffle_2"));
+            }
+            if (show_sequence_list[i] === "tax") {
+                parent.appendChild(document.getElementById("shuffle_3"));
+            }
+        }
+
+        // Show the bonus texts for incentivized people
+        if ({{ incentive|json }} == 0) {
+            document.getElementById('bonus_txt1').style.display = "none";
+            document.getElementById('bonus_txt2').style.display = "none";
+            document.getElementById('bonus_txt3').style.display = "none";
+            document.getElementById('bonus_txt4').style.display = "none";
+        }
+
+        // Show the bonus texts for non-incentivized people
+        if ({{ incentive|json }} == 1) {
+            document.getElementById('bonus_txt5').style.display = "none";
+        }
+    </script>
+
+    <div class="noUiSlider">
+    <script>
+
+    var slider_donate = document.getElementById('slider_donate');
+    var slider_lotto = document.getElementById('slider_lotto');
+    var slider_tax = document.getElementById('slider_tax');
+
+    var donate_output = document.getElementById('myRange1');
+    var lotto_output = document.getElementById('myRange2');
+    var tax_output = document.getElementById('myRange3');
+
+    var check_slider_donate = document.getElementById('id_check_slider_donate');
+    var check_slider_lotto = document.getElementById('id_check_slider_lotto');
+    var check_slider_tax = document.getElementById('id_check_slider_tax');
+
+    var slidervalue_donate = document.getElementById('demo_donate');
+    var slidervalue_not_donate = document.getElementById('demo_not_donate');
+
+    var slidervalue_lotto = document.getElementById('demo_lotto');
+    var slidervalue_not_lotto = document.getElementById('demo_not_lotto');
+
+    var slidervalue_tax = document.getElementById('demo_tax');
+    var slidervalue_not_tax = document.getElementById('demo_not_tax')
+
+    // Initializing the sliders
+    noUiSlider.create(slider_donate, {
+    start: 0,
+    step: 5,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 15
+    },
+    {#tooltips: wNumb({decimals: 0}),#}
+    pips: {
+        mode: 'values',
+        values: [0, 5, 10, 15],
+        density: 100,
+    }
+    });
+
+    noUiSlider.create(slider_lotto, {
+    start: 0,
+    step: 5,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 15
+    },
+    {#tooltips: wNumb({decimals: 0}),#}
+    pips: {
+        mode: 'values',
+        values: [0, 5, 10, 15],
+        density: 100
+    }
+    });
+
+    noUiSlider.create(slider_tax, {
+    start: 0,
+    step: 5,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 15
+    },
+    {#tooltips: wNumb({decimals: 0}),#}
+    pips: {
+        mode: 'values',
+        values: [0, 5, 10, 15],
+        density: 100
+    }
+    });
+
+    // Update the input formfield values with the slider values
+    slider_donate.noUiSlider.on('update', function (values, handle) {
+        donate_output.value = values[handle];
+    });
+
+    slider_lotto.noUiSlider.on('update', function (values, handle) {
+        lotto_output.value = values[handle];
+    });
+
+    slider_tax.noUiSlider.on('update', function (values, handle) {
+        tax_output.value = values[handle];
+    });
+
+    /* Show and update the slider value only when the handle is touched */
+    slider_donate.noUiSlider.on('slide', function () {
+        slider_donate.noUiSlider.on('update', function (values, handle) {
+        slidervalue_donate.innerHTML = values[handle];
+        slidervalue_not_donate.innerHTML = 15 - values[handle];
+        });
+    });
+
+    slider_lotto.noUiSlider.on('slide', function () {
+        slider_lotto.noUiSlider.on('update', function (values, handle) {
+        slidervalue_lotto.innerHTML = values[handle];
+        slidervalue_not_lotto.innerHTML = 15 - values[handle];
+        });
+    });
+
+    slider_tax.noUiSlider.on('slide', function () {
+        slider_tax.noUiSlider.on('update', function (values, handle) {
+        slidervalue_tax.innerHTML = values[handle];
+        slidervalue_not_tax.innerHTML = 15 - values[handle];
+        });
+    });
+
+    </script>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            var handle_style1 = document.getElementById("slider_donate").querySelector('.noUi-handle');
+            var handle_style2 = document.getElementById("slider_lotto").querySelector('.noUi-handle');
+            var handle_style3 = document.getElementById("slider_tax").querySelector('.noUi-handle');
+
+            slider_donate.noUiSlider.on('slide', function () {
+                handle_style1.style.display = 'block';
+                handle_style1.style.background = '#007bff';
+                check_slider_donate.value = 1;
+            });
+
+            slider_lotto.noUiSlider.on('slide', function () {
+                handle_style2.style.display = 'block';
+                handle_style2.style.background = '#007bff';
+                check_slider_lotto.value = 1;
+            });
+
+            slider_tax.noUiSlider.on('slide', function () {
+                handle_style3.style.display = 'block';
+                handle_style3.style.background = '#007bff';
+                check_slider_tax.value = 1;
+            });
+        });
+    </script>
+
+    <style>
+        /* Hide the default error message */
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+
+        /* Hide the slider handle */
+        .noUi-handle {
+            display: none;
+        }
+
+        /* Make pips above slider */
+        .noUi-marker {
+            margin-top: -45px;
+        }
+
+        .noUi-value {
+            margin-top: -78px;
+        }
+
+    </style>
+
+    <button class="otree-btn-next btn btn-primary" id="btn1">{% blocktrans %}Next{% endblocktrans %}</button>
+
+    <br><br><br><br>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="96"
+        aria-valuemin="0" aria-valuemax="100" style="width:96%">
+        <span class="sr-only">96% Complete</span>
+        </div>
+    </div>
 
 {% endblock %}

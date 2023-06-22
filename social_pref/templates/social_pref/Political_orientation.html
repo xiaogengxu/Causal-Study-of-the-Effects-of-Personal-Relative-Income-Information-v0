@@ -1,0 +1,271 @@
+{% extends "social_pref/Page.html" %}
+{% load otree static i18n %}
+
+{% block content %}
+
+    <head>
+        <link href="{% static 'nouislider.min.css' %}" rel="stylesheet">
+        <script src="{% static 'wNumb.min.js' %}"></script>
+        <script src="{% static 'nouislider.min.js' %}"></script>
+    </head>
+
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
+
+    <p><b>{% blocktrans %}In this section, we ask about your views on various societal and political issues.{% endblocktrans %}</b></p>
+    <br>
+
+    <p>{% blocktrans %}In politics, people sometimes talk of "left" and "right" on economic matters.
+        Where would you place yourself on this scale?{% endblocktrans %}</p>
+
+    <div type="range" class="noUiSlider" id="slider_political_right"></div>
+    <input type="hidden" name="political_right" value="" id="myRange1"/>
+    <input type="hidden" name="check_political_right" value="" id="id_check_political_right"/>
+    <br><br><br><br><br>
+
+
+    <p>{% blocktrans %}People sometimes talk of conservative and liberal values.
+        Where would you place yourself on this scale?{% endblocktrans %}</p>
+
+    <div type="range" class="noUiSlider" id="slider_political_liberal"></div>
+    <input type="hidden" name="political_liberal" value="" id="myRange2"/>
+    <input type="hidden" name="check_political_liberal" value="" id="id_check_political_liberal"/>
+    <br><br><br><br><br>
+
+
+    <p>{% blocktrans %}Which party would you most likely vote for, if there would be an election today?
+        (Parties are listed in alphabetical order.){% endblocktrans %}</p>
+
+    <select id="party" name="party" style="width: 300px">
+        <option value="">--</option>
+        <option id="no_party" value="19"></option>
+        <option id="no_vote" value="20"></option>
+        <option id="party1"></option>
+        <option id="party2"></option>
+        <option id="party3"></option>
+        <option id="party4"></option>
+        <option id="party5"></option>
+        <option id="party6"></option>
+        <option id="party7"></option>
+        <option id="party8"></option>
+        <option id="party9"></option>
+        <option id="party10"></option>
+        <option id="party11"></option>
+        <option id="party12"></option>
+        <option id="party13"></option>
+        <option id="party14"></option>
+        <option id="party15"></option>
+        <option id="party16"></option>
+        <option id="party17"></option>
+        <option id="party18"></option>
+    </select>
+    <br><br>
+
+    <script>
+        document.getElementById("party").selectedIndex = -1;
+
+        if (document.getElementById('id_lang_1').checked) {
+            document.getElementById('no_party').innerHTML = 'En tiedä / En halua vastata';
+            document.getElementById('no_vote').innerHTML = 'En aio äänestää.';
+            document.getElementById('party1').innerHTML = 'Eläinoikeuspuolue r.p.';
+            document.getElementById('party2').innerHTML = 'Feministinen puolue r.p.';
+            document.getElementById('party3').innerHTML = 'Kansalaispuolue r.p.';
+            document.getElementById('party4').innerHTML = 'Kansallinen Kokoomus r.p.';
+            document.getElementById('party5').innerHTML = 'Liberaalipuolue - Vapaus valita r.p.';
+            document.getElementById('party6').innerHTML = 'Liike Nyt r.p.';
+            document.getElementById('party7').innerHTML = 'Perussuomalaiset r.p.';
+            document.getElementById('party8').innerHTML = 'Piraattipuolue r.p.';
+            document.getElementById('party9').innerHTML = 'Seitsemän tähden liike r.p.';
+            document.getElementById('party10').innerHTML = 'Sininen tulevaisuus r.p.';
+            document.getElementById('party11').innerHTML = 'Suomen Kansa Ensin r.p.';
+            document.getElementById('party12').innerHTML = 'Suomen Keskusta r.p.';
+            document.getElementById('party13').innerHTML = 'Suomen Kristillisdemokraatit (KD)';
+            document.getElementById('party14').innerHTML = 'Suomen ruotsalainen kansanpuolue r.p.';
+            document.getElementById('party15').innerHTML = 'Suomen Sosialidemokraattinen Puolue';
+            document.getElementById('party16').innerHTML = 'Tasapainon puolesta - IPU';
+            document.getElementById('party17').innerHTML = 'Vasemmistoliitto r.p.';
+            document.getElementById('party18').innerHTML = 'Vihreä liitto r.p.';
+        }
+        if (document.getElementById('id_lang_2').checked) {
+            document.getElementById('no_party').innerHTML = 'Vet inte / Vill inte svara';
+            document.getElementById('no_vote').innerHTML = 'Jag kommer inte att rösta.';
+            document.getElementById('party1').innerHTML = 'Blå framtid r.p.';
+            document.getElementById('party2').innerHTML = 'Centern i Finland r.p.';
+            document.getElementById('party3').innerHTML = 'Djurrättspartiet r.p.';
+            document.getElementById('party4').innerHTML = 'Feministiska partiet r.p.';
+            document.getElementById('party5').innerHTML = 'Finlands Socialdemokratiska Parti r.p.';
+            document.getElementById('party6').innerHTML = 'För jämvikt r.p.';
+            document.getElementById('party7').innerHTML = 'Gröna förbundet r.p.';
+            document.getElementById('party8').innerHTML = 'Kristdemokraterna i Finland (KD) r.p.';
+            document.getElementById('party9').innerHTML = 'Liberalpartiet - Frihet att välja r.p.';
+            document.getElementById('party10').innerHTML = 'Medborgarpartiet r.p.';
+            document.getElementById('party11').innerHTML = 'Piratpartiet r.p.';
+            document.getElementById('party12').innerHTML = 'Rörelse Nu r.p.';
+            document.getElementById('party13').innerHTML = 'Samlingspartiet r.p.';
+            document.getElementById('party14').innerHTML = 'Sannfinländarna r.p.';
+            document.getElementById('party15').innerHTML = 'Seitsemän tähden liike r.p.';
+            document.getElementById('party16').innerHTML = 'Suomen Kansa Ensin r.p.';
+            document.getElementById('party17').innerHTML = 'Svenska folkpartiet i Finland r.p.';
+            document.getElementById('party18').innerHTML = 'Vänsterförbundet r.p.';
+        }
+    </script>
+
+    <div class="noUiSlider">
+    <script>
+
+    var slider_political_right = document.getElementById('slider_political_right');
+    var slider_political_liberal = document.getElementById('slider_political_liberal');
+
+    var political_right_output = document.getElementById('myRange1');
+    var political_liberal_output = document.getElementById('myRange2');
+
+    var check_political_right_output = document.getElementById('id_check_political_right');
+    var check_political_liberal_output = document.getElementById('id_check_political_liberal');
+
+    /* Space looks stupid because IE doesn't allow Array() */
+    var pipFormats1;
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats1 = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'+'Vasen',
+            '100': 'Oikea'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats1 = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'+'Vänster',
+            '100': 'Höger'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+
+    var pipFormats2;
+
+    if (document.getElementById('id_lang_1').checked) {
+       pipFormats2 = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'Konservatiivinen',
+       '100': 'Liberaali'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+       pipFormats2 = {'0': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' +
+           '&nbsp&nbsp&nbsp&nbsp'
+           +'Konservativ',
+       '100': 'Liberal'+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+
+    // Initializing the sliders
+    noUiSlider.create(slider_political_right, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats1[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_political_liberal, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats2[a];
+            }
+        }
+    }
+    });
+
+    // Update the input formfield values with the slider values
+    slider_political_right.noUiSlider.on('update', function (values, handle) {
+        political_right_output.value = values[handle];
+    });
+
+    slider_political_liberal.noUiSlider.on('update', function (values, handle) {
+        political_liberal_output.value = values[handle];
+    });
+    </script>
+    </div>
+
+    <style>
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+        .noUi-slide {
+            width: 100%; /* Width of the outside container */
+        }
+
+        /* The value of handle shows only when touching the handle. */
+        .noUi-tooltip {
+            display: none;
+        }
+        .noUi-active .noUi-tooltip {
+            display: block;
+        }
+        .noUi-handle {
+            display: none;
+        }
+        .noUi-pips {
+            margin-top: -5px;
+        }
+        .noUi-marker {
+            margin-top: -4px;
+        }
+        .noUi-value {
+            margin-top: -5px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var handle_style1 = document.getElementById("slider_political_right").querySelector('.noUi-handle');
+            var handle_style2 = document.getElementById("slider_political_liberal").querySelector('.noUi-handle');
+
+            slider_political_right.noUiSlider.on('slide', function () {
+                handle_style1.style.display = 'block';
+                handle_style1.style.background = '#007bff';
+                check_political_right_output.value = 1;
+            });
+
+            slider_political_liberal.noUiSlider.on('slide', function () {
+                handle_style2.style.display = 'block';
+                handle_style2.style.background = '#007bff';
+                check_political_liberal_output.value = 1;
+            });
+        });
+    </script>
+
+    <br><br>
+    {% next_button %}
+
+    <br><br>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="91"
+        aria-valuemin="0" aria-valuemax="100" style="width:91%">
+        <span class="sr-only">91% Complete</span>
+        </div>
+    </div>
+
+{% endblock %}

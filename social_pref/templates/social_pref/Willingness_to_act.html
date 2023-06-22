@@ -1,0 +1,277 @@
+{% extends "social_pref/Page.html" %}
+{% load otree static i18n %}
+
+{% block content %}
+
+    <head>
+        <link href="{% static 'nouislider.min.css' %}" rel="stylesheet">
+        <script src="{% static 'wNumb.min.js' %}"></script>
+        <script src="{% static 'nouislider.min.js' %}"></script>
+    </head>
+
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <h6 class="alert-heading">{{ form.non_field_errors }}</h6>
+        </div>
+    {% endif %}
+
+    <p><b>{% blocktrans %}In this section we ask about your willingness to act in a certain way.
+        Please use the sliders below to indicate your answers.{% endblocktrans %}</b></p>
+    <br>
+
+    <div id="shuffle2"></div>
+
+    <div id="shuffle2_1">
+
+        <p>{% blocktrans %}How willing are you to give up something that is beneficial for you today
+            in order to benefit more from that in the future?{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_patience"></div>
+        <input type="hidden" name="patience" value="" id="myRange1"/>
+        <input type="hidden" name="check_slider6" value="" id="id_check_slider6"/>
+        <br><br><br><br><br>
+    </div>
+
+    <div id="shuffle2_2">
+
+        <p>{% blocktrans %}How willing are you to give to good causes without expecting anything in return?{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_altruism"></div>
+        <input type="hidden" name="altruism" value="" id="myRange2"/>
+        <input type="hidden" name="check_slider7" value="" id="id_check_slider7"/>
+        <br><br><br><br><br>
+    </div>
+
+    <div id="shuffle2_3">
+
+        <p>{% blocktrans %}In general, how willing or unwilling are you to take risks?{% endblocktrans %}</p>
+
+        <div type="range" class="noUiSlider" id="slider_risk_taking"></div>
+        <input type="hidden" name="risk_taking" value="" id="myRange3"/>
+        <input type="hidden" name="check_slider8" value="" id="id_check_slider8"/>
+        <br><br><br><br><br>
+    </div>
+
+    <script>
+        // Show the slider questions with the randomized order
+        var show_sequence_list = [{{ act_seq0|json }}, {{ act_seq1|json }}, {{ act_seq2|json }}];
+        var parent = document.getElementById("shuffle2");
+        var i;
+        for (i = 0; i < show_sequence_list.length; i++ ) {
+            if (show_sequence_list[i] === "patience_seq") {
+                parent.appendChild(document.getElementById("shuffle2_1"));
+            }
+            if (show_sequence_list[i] === "altruism_seq") {
+                parent.appendChild(document.getElementById("shuffle2_2"));
+            }
+            if (show_sequence_list[i] === "risk_taking_seq") {
+                parent.appendChild(document.getElementById("shuffle2_3"));
+            }
+        }
+    </script>
+
+    <div class="noUiSlider">
+    <script>
+
+    var slider_patience = document.getElementById('slider_patience');
+    var slider_altruism = document.getElementById('slider_altruism');
+    var slider_risk_taking = document.getElementById('slider_risk_taking');
+
+    var patience_output = document.getElementById('myRange1');
+    var altruism_output = document.getElementById('myRange2');
+    var risk_taking_output = document.getElementById('myRange3');
+
+    var check_slider6_output = document.getElementById('id_check_slider6');
+    var check_slider7_output = document.getElementById('id_check_slider7');
+    var check_slider8_output = document.getElementById('id_check_slider8');
+
+    /* Space looks stupid because IE doesn't allow Array() */
+    var pipFormats;
+
+    if (document.getElementById('id_lang_1').checked) {
+        pipFormats = {'0':
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'Hyvin haluton', '100': 'Hyvin halukas'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+    if (document.getElementById('id_lang_2').checked) {
+        pipFormats = {'0':
+           '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+           +'Helt'+'<br>'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'ovillig', '100': 'Mycket'
+           +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'
+       +'<br>'+'villig'
+        +'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'};
+    }
+
+    // Initializing the sliders
+    noUiSlider.create(slider_patience, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_altruism, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    noUiSlider.create(slider_risk_taking, {
+    start: 0,
+    step: 1,
+    format: wNumb({decimals: 0}),
+    // Disable animation on value-setting,
+    // so the sliders respond immediately.
+    animate: false,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    pips: {
+        mode: 'range',
+        density: 100,
+        format: {
+            to: function(a) {
+                return pipFormats[a];
+            }
+        }
+    }
+    });
+
+    // Update the input formfield values with the slider values
+    slider_patience.noUiSlider.on('update', function (values, handle) {
+        patience_output.value = values[handle];
+    });
+
+    slider_altruism.noUiSlider.on('update', function (values, handle) {
+        altruism_output.value = values[handle];
+    });
+
+    slider_risk_taking.noUiSlider.on('update', function (values, handle) {
+        risk_taking_output.value = values[handle];
+    });
+    </script>
+    </div>
+
+    <style>
+        .otree-form-errors {
+            visibility: hidden;
+            display: none;
+        }
+        .noUi-slide {
+            width: 100%; /* Width of the outside container */
+        }
+
+        /* The value of handle shows only when touching the handle. */
+        .noUi-tooltip {
+            display: none;
+        }
+        .noUi-active .noUi-tooltip {
+            display: block;
+        }
+        .noUi-handle {
+            display: none;
+        }
+        .noUi-pips {
+            margin-top: -5px;
+        }
+        .noUi-marker {
+            margin-top: -4px;
+        }
+        .noUi-value {
+            margin-top: -13px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            var handle_style1 = document.getElementById("slider_patience").querySelector('.noUi-handle');
+            var handle_style2 = document.getElementById("slider_altruism").querySelector('.noUi-handle');
+            var handle_style3 = document.getElementById("slider_risk_taking").querySelector('.noUi-handle');
+
+            slider_patience.noUiSlider.on('slide', function () {
+                handle_style1.style.display = 'block';
+                handle_style1.style.background = '#007bff';
+                check_slider6_output.value = 1;
+            });
+
+            slider_altruism.noUiSlider.on('slide', function () {
+                handle_style2.style.display = 'block';
+                handle_style2.style.background = '#007bff';
+                check_slider7_output.value = 1;
+            });
+
+            slider_risk_taking.noUiSlider.on('slide', function () {
+                handle_style3.style.display = 'block';
+                handle_style3.style.background = '#007bff';
+                check_slider8_output.value = 1;
+            });
+        });
+    </script>
+
+    <br>
+    {% next_button %}
+
+    <br><br>
+    {% if condition == 'control' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="86"
+            aria-valuemin="0" aria-valuemax="100" style="width:86%">
+            <span class="sr-only">86% Complete</span>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if condition == 'assigned' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="86"
+            aria-valuemin="0" aria-valuemax="100" style="width:86%">
+            <span class="sr-only">86% Complete</span>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if condition == 'choice' %}
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="87"
+            aria-valuemin="0" aria-valuemax="100" style="width:87%">
+            <span class="sr-only">87% Complete</span>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

@@ -8,7 +8,9 @@ from otree.api import (
     Currency as c,
     currency_range,
 )
+from django.utils.translation import ugettext_lazy as _
 
+import random
 
 author = 'Your name here'
 
@@ -18,8 +20,8 @@ Stimuli
 
 
 class Constants(BaseConstants):
-    name_in_url = 'stimuli'
-    players_per_group = 3
+    name_in_url = 'info'
+    players_per_group = 200
     num_rounds = 1
 
 
@@ -32,4 +34,13 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    pass
+
+    confirm_info = models.IntegerField(
+        blank=True
+    )
+
+    check_confirm_info = models.IntegerField(
+        blank=True
+    )
+    lang = models.StringField(choices=[('en', 'English'), ('fi', 'suomi'), ('sv', 'svenska')],
+                              widget=widgets.RadioSelectHorizontal)
