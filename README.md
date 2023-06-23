@@ -1,10 +1,12 @@
-# Causal-Study-of-the-Effects-of-Personal-Relative-Income-Information-v0
+Causal-Study-of-the-Effects-of-Personal-Relative-Income-Information-v0
+
 Test version of the online survey
-# The oTree codes is built on oTree 3.0.9 and can be compiled with oTree<5. See requirements.txt for other environment requirements of the codes.
 
-# The reason why we did not develop the online survey with oTree5 (oTree light) is because we need multilinguistic pages (Finnish and Swedish), and oTree5 does not support Django translation package.
+The oTree codes are built on oTree 3.0.9 and can be compiled with oTree<5. See requirements.txt for other environment requirements of the codes.
 
-# The codes are developed in English (Python scripts and HTML).
+The reason why we did not develop the online survey with oTree5 (oTree light) is because we need multilinguistic pages (Finnish and Swedish), and oTree5 does not support Django translation package.
+
+The codes are developed in English (Python scripts and HTML).
 
 # How to set up and try the survey?
 Step 1: Download the zip file and extract it and open the project (extracted folder) in an integrated development environment, i.e., PyCharm. 
